@@ -3,18 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase/supabase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:ukk_kasir/barang/addbarang.dart';
 import 'package:ukk_kasir/barang/tambahbarang.dart';
-import 'supabase.dart';
+import 'package:ukk_kasir/kasir.dart';
+import 'package:ukk_kasir/barang/addbarang.dart';
+import 'package:ukk_kasir/user/tambahpelanggan.dart';
 
-class Admin extends StatefulWidget {
-  const Admin({super.key});
+class Customer extends StatefulWidget {
+  const Customer({super.key});
 
   @override
   _adminState createState() => _adminState();
 }
 
-class _adminState extends State<Admin> {
+class _adminState extends State<Customer> {
   List<Map<String, dynamic>> florist = [];
   List<Map<String, dynamic>> filteredFlorist = [];
   String category = 'all';
@@ -55,7 +56,7 @@ class _adminState extends State<Admin> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Lulaflawrist',
+              'Customer Data',
               style: GoogleFonts.poppins(
                   color: Color(0xFF181D27),
                   fontSize: MediaQuery.of(context).size.height * 0.025,
@@ -102,13 +103,27 @@ class _adminState extends State<Admin> {
                 ),
                 ListTile(
                   onTap: () {
-                    Navigator.push(
+                     Navigator.push(
                       context,
                     MaterialPageRoute(builder: (context) => Barang()),
                     );
                   },
                   title: Text(
-                    'Data Collection',
+                    'Data Product',
+                    style: GoogleFonts.poppins(
+                        color: Color(0xFF181D27),
+                        fontSize: MediaQuery.of(context).size.height * 0.02),
+                  ),
+                  leading: Image.asset(
+                    'assets/brand.png',
+                    width: MediaQuery.of(context).size.width * 0.085,
+                    height: MediaQuery.of(context).size.height * 0.085,
+                  ),
+                ),
+                 ListTile(
+                  onTap: () {},
+                  title: Text(
+                    'Data Customer',
                     style: GoogleFonts.poppins(
                         color: Color(0xFF181D27),
                         fontSize: MediaQuery.of(context).size.height * 0.02),
@@ -122,7 +137,7 @@ class _adminState extends State<Admin> {
                 ListTile(
                   onTap: () {},
                   title: Text(
-                    'Stock Product',
+                    'Stok Barang',
                     style: GoogleFonts.poppins(
                         color: Color(0xFF181D27),
                         fontSize: MediaQuery.of(context).size.height * 0.02),
@@ -134,14 +149,14 @@ class _adminState extends State<Admin> {
                   ),
                 ),
                 ListTile(
-                  // onTap: (){
-                  //   Navigator.push(
-                  //     context, 
-                  //     MaterialPageRoute(builder: (context)=> Signup())
-                  //   );
-                  // },
+                  onTap: (){
+                    Navigator.push(
+                      context, 
+                      MaterialPageRoute(builder: (context)=> Admin())
+                    );
+                  },
                   title: Text(
-                    'Registrasi',
+                    'Back',
                     style: GoogleFonts.poppins(
                         color: Color(0xFF181D27),
                         fontSize: MediaQuery.of(context).size.height * 0.02),
@@ -152,6 +167,7 @@ class _adminState extends State<Admin> {
                     height: MediaQuery.of(context).size.height * 0.075,
                   ),
                 )
+                
               ],
             ),
           ),
@@ -177,7 +193,7 @@ class _adminState extends State<Admin> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.02,
                 ),
-                Text('Product List',
+                Text('customer data at LulaFlawrist store',
                   style: GoogleFonts.poppins(
                     color: Color(0xFF181D27),
                     fontWeight: FontWeight.w600,
@@ -211,22 +227,7 @@ class _adminState extends State<Admin> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.02,
                 ),
-                PopupMenuButton<String>(
-                  icon: Icon(Icons.sort),
-                  onSelected: filterflorist,
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: 'all',
-                      child: Text('All')
-                    ),
-                    PopupMenuItem(
-                      value: 'Others',
-                      child: Text('Others')),
-                    PopupMenuItem(
-                      value: 'Flowers',
-                      child: Text('Flowers')
-                    ),
-                  ])
+              
               ],
             ),
             SizedBox(
@@ -327,7 +328,19 @@ class _adminState extends State<Admin> {
           ],
         ),
       ),
-    
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color.fromARGB(255, 248, 148, 168),
+        foregroundColor: const Color.fromARGB(255, 248, 222, 226),
+        onPressed: (){
+          Navigator.push(
+            context, 
+            MaterialPageRoute(
+              builder: (context) => tambahPelanggan()
+            )
+          );
+        },
+        child: Icon(Icons.add)
+      ),
     );
   }
 }

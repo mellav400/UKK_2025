@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'kasir.dart';
 
 class Loginpage extends StatefulWidget {
   const Loginpage ({super.key});
@@ -18,9 +18,9 @@ class _Loginpagestate extends State<Loginpage> {
     String password = _passwordController.text;
 
     if (username == 'Admin' && password == 'Admin123') {
-      // Navigator.push(
-      //   context, 
-      //   MaterialPageRoute(builder: (context) => Admin()));
+      Navigator.push(
+        context, 
+        MaterialPageRoute(builder: (context) => Admin()));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
