@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase/supabase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:ukk_kasir/barang/editbarang.dart';
 import 'package:ukk_kasir/barang/tambahbarang.dart';
 import 'package:ukk_kasir/kasir.dart';
 
@@ -25,13 +26,14 @@ class _adminState extends State<Barang> {
     fetchFlorist();
   }
 
-  Future<void> fetchFlorist() async {
-    // final response = await Supabase.instance.client.from('produk').select();
+ Future<void> fetchFlorist() async {
+    final response = await Supabase.instance.client.from('produk').select();
     setState(() {
-      // florist = List<Map<String, dynamic>>.from(response);
+      florist = List<Map<String, dynamic>>.from(response);
       filteredFlorist = florist;
     });
-  }
+
+     }
 
   void filterflorist(String category){
     setState(() {
@@ -192,7 +194,7 @@ class _adminState extends State<Barang> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.02,
                 ),
-                Text('Product List',
+                Text('Data Product Collection',
                   style: GoogleFonts.poppins(
                     color: Color(0xFF181D27),
                     fontWeight: FontWeight.w600,
@@ -269,7 +271,7 @@ class _adminState extends State<Barang> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(list['NamaProduk'] ?? 'No name',
+                              Text(list['namaproduk'] ?? 'No name',
                                 style: GoogleFonts.poppins(
                                   color: Color(0xFF181D27),
                                   fontWeight: FontWeight.w600
@@ -285,14 +287,14 @@ class _adminState extends State<Barang> {
                                       borderRadius: BorderRadius.circular(8)
                                     ),
                                     child: Center(
-                                      child: Text('${list['Stok']} Portions',
+                                      child: Text('${list['stok']} product',
                                         style: GoogleFonts.poppins(
                                           color: Color(0xFF2E90FA)
                                         ),
                                       ),
                                     )
                                   ),
-                                  Text('Rp${list['Harga']} / Portions',
+                                  Text('Rp${list['harga']} ',
                                     style: GoogleFonts.poppins(
                                       color: Color(0xFFA4A7AE)
                                     ),
@@ -316,10 +318,10 @@ class _adminState extends State<Barang> {
                                 ),
                                 itemBuilder: (context) => [
                                   PopupMenuItem(
-                                    // onTap: (){
-                                    //   Navigator.push(context, MaterialPageRoute(
-                                    //     builder: (context) => Editproduk(data: list,)));
-                                    // },
+                                    onTap: (){
+                                      Navigator.push(context, MaterialPageRoute(
+                                        builder: (context) => EditProduk(data: list,)));
+                                    },
                                     child: Text('Edit')
                                   ),
                                   PopupMenuItem(
@@ -349,7 +351,7 @@ class _adminState extends State<Barang> {
           Navigator.push(
             context, 
             MaterialPageRoute(
-              builder: (context) => tambahProduk()
+              builder: (context) => TambahProduk()
             )
           );
         },

@@ -12,36 +12,36 @@ class Customer extends StatefulWidget {
   const Customer({super.key});
 
   @override
-  _adminState createState() => _adminState();
+  _customerState createState() => _customerState();
 }
 
-class _adminState extends State<Customer> {
-  List<Map<String, dynamic>> florist = [];
-  List<Map<String, dynamic>> filteredFlorist = [];
-  String category = 'all';
+class _customerState extends State<Customer> {
+  List<Map<String, dynamic>> customer = [];
+  List<Map<String, dynamic>> filteredCustomer = [];
+  String sorting = 'all';
 
   @override
   void initState() {
     super.initState();
-    fetchFlorist();
+    fetchCustomer();
   }
 
-  Future<void> fetchFlorist() async {
-    // final response = await Supabase.instance.client.from('produk').select();
+  Future<void> fetchCustomer() async {
+    final response = await Supabase.instance.client.from('pelanggan').select();
     setState(() {
-      // florist = List<Map<String, dynamic>>.from(response);
-      filteredFlorist = florist;
+      customer = List<Map<String, dynamic>>.from(response);
+      filteredCustomer = customer;
     });
   }
 
-  void filterflorist(String category){
+  void filterflorist(String sorting){
     setState(() {
-      this.category = category;
-      if(category == 'all') {
-        filteredFlorist = florist;
+      this.sorting = sorting;
+      if(sorting == 'all data') {
+        filteredCustomer = customer;
       }
       else {
-        filteredFlorist = florist.where((item) => item['typeFlorist'] == category).toList();
+        filteredCustomer = customer.where((item) => item['typeCustomer'] == sorting).toList();
       }
     });
   }
@@ -236,9 +236,9 @@ class _adminState extends State<Customer> {
             Expanded(
               child: ListView.builder(
                 // padding: EdgeInsets.all(20),
-                itemCount: filteredFlorist.length,
+                itemCount: filteredCustomer.length,
                 itemBuilder: (context, index) {
-                  final list = filteredFlorist[index];
+                  final list = filteredCustomer[index];
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Container(
@@ -255,7 +255,7 @@ class _adminState extends State<Customer> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(list['NamaProduk'] ?? 'No name',
+                              Text(list['namapelanggan'] ?? 'No name',
                                 style: GoogleFonts.poppins(
                                   color: Color(0xFF181D27),
                                   fontWeight: FontWeight.w600
@@ -271,7 +271,7 @@ class _adminState extends State<Customer> {
                                       borderRadius: BorderRadius.circular(8)
                                     ),
                                     child: Center(
-                                      child: Text('${list['Stok']} Portions',
+                                      child: Text('${list['alamat']} Portions',
                                         style: GoogleFonts.poppins(
                                           color: Color(0xFF2E90FA)
                                         ),

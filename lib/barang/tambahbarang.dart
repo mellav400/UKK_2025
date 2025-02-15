@@ -4,44 +4,51 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class tambahProduk extends StatefulWidget {
-  const tambahProduk({super.key});
+class TambahProduk extends StatefulWidget {
+  const TambahProduk({super.key});
 
   @override
-  _tambahProdukState createState() => _tambahProdukState();
+  _TambahProdukState createState() => _TambahProdukState();
 }
 
-class _tambahProdukState extends State<tambahProduk> {
-  final _formkey = GlobalKey<FormState>();
+class _TambahProdukState extends State<TambahProduk> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _NamaProdukController = TextEditingController();
   final TextEditingController _HargaController = TextEditingController();
   final TextEditingController _StokController = TextEditingController();
-  final  _KategoriController = SingleValueDropDownController();
+  final _KategoriController = SingleValueDropDownController();
+
+  bool isLoading = false;
 
   Future<void> _tambahProduk() async {
-    if (!_formkey.currentState!.validate()) {
+    if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    final produk = _NamaProdukController.text;
-    final harga = _HargaController.text;
-    final stok = _StokController.text;
-    final kategori = _KategoriController.dropDownValue!.value;
+    if (_KategoriController.dropDownValue == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Kategori produk harus dipilih!')),
+      );
+      return;
+    }
 
-    final response = await Supabase.instance.client.from('produk').insert([
-      {
-        'nama_produk': produk,
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final produk = _NamaProdukController.text;
+      final harga = int.tryParse(_HargaController.text) ?? 0;
+      final stok = int.tryParse(_StokController.text) ?? 0;
+      final kategori = _KategoriController.dropDownValue!.value;
+
+      await Supabase.instance.client.from('produk').insert({
+        'namaproduk': produk,
         'harga': harga,
         'stok': stok,
-        'kategori': kategori
-      }
-    ]);
+        'kategori': kategori,
+      });
 
-    if (response != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${response}')),
-      );
-    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Produk Berhasil Ditambahkan')),
       );
@@ -51,7 +58,15 @@ class _tambahProdukState extends State<tambahProduk> {
       _StokController.clear();
       _KategoriController.dropDownValue = null;
 
-      Navigator.pop(context, 'success');
+      Navigator.pop(context, true);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Terjadi kesalahan: $e')),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -66,123 +81,33 @@ class _tambahProdukState extends State<tambahProduk> {
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Form(
-            key: _formkey,
+            key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-               
-                Text(
-                  'Product Name',
-                  style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 53, 31, 39)),
-                ),
-                SizedBox(height: 8),
-                TextFormField(
-                  controller: _NamaProdukController,
-                  decoration: InputDecoration(
-                    labelText: 'Product name',
-                    labelStyle: GoogleFonts.poppins(fontSize: 14),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                    filled: true,
-                    fillColor: const Color.fromARGB(255, 255, 255, 255),
-                    prefixIcon: Icon(Icons.local_florist, color: Color.fromARGB(255, 255, 82, 82)),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Nama produk tidak boleh kosong';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 16),
+                _buildTextField('Product Name', 'Product name', _NamaProdukController, Icons.local_florist),
+                _buildTextField('Price', 'Price', _HargaController, Icons.money, isNumber: true),
+                _buildTextField('Stock Product', 'Stock Product', _StokController, Icons.storage, isNumber: true),
 
-                // Harga Produk
-                Text(
-                  'Price',
-                  style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 53, 31, 39)),
-                ),
-                SizedBox(height: 8),
-                TextFormField(
-                  controller: _HargaController,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: InputDecoration(
-                    labelText: 'Price',
-                    labelStyle: GoogleFonts.poppins(fontSize: 14),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                    filled: true,
-                    fillColor: Colors.grey[200],
-                    prefixIcon: Icon(Icons.money, color: Color.fromARGB(255, 52, 93, 40)),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Harga produk tidak boleh kosong';
-                    }
-                    return null;
-                  },
-                  keyboardType: TextInputType.number,
-                ),
-                SizedBox(height: 16),
-
-                // Stok Produk
-                Text(
-                  'Stock Product',
-                  style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 53, 31, 39)),
-                ),
-                SizedBox(height: 8),
-                TextFormField(
-                  controller: _StokController,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: InputDecoration(
-                    labelText: 'Stock Product',
-                    labelStyle: GoogleFonts.poppins(fontSize: 14),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                    filled: true,
-                    fillColor: Colors.grey[200],
-                    prefixIcon: Icon(Icons.storage, color: const Color.fromARGB(255, 54, 53, 53)),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Stok produk tidak boleh kosong';
-                    }
-                    return null;
-                  },
-                  keyboardType: TextInputType.number,
-                ),
-                SizedBox(height: 16),
-
-                // Kategori Produk
                 Text(
                   'Category',
-                  style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color:Color.fromARGB(255, 53, 31, 39)),
+                  style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 53, 31, 39)),
                 ),
                 SizedBox(height: 8),
                 DropDownTextField(
                   controller: _KategoriController,
                   textFieldDecoration: InputDecoration(
                     labelText: 'Category',
-                    labelStyle: GoogleFonts.poppins(fontSize: 14),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                     filled: true,
                     fillColor: Colors.grey[200],
                     prefixIcon: Icon(Icons.category, color: Color.fromARGB(255, 163, 142, 255)),
                   ),
                   dropDownList: [
-                    DropDownValueModel(
-                      name: 'Fresh flowers', 
-                      value: 'Fresh flowers'
-                    ),
-                    DropDownValueModel(
-                      name: 'Bouquet', 
-                      value: 'Bouquet'
-                    ),
-                    DropDownValueModel(
-                      name: 'GiftBox', 
-                      value: 'GiftBox'
-                    ),
-                    DropDownValueModel(
-                      name: 'Single Bouquet', 
-                      value: 'Single Bouquet'
-                    ),
-                   
+                    DropDownValueModel(name: 'Fresh flowers', value: 'Fresh flowers'),
+                    DropDownValueModel(name: 'Bouquet', value: 'Bouquet'),
+                    DropDownValueModel(name: 'GiftBox', value: 'GiftBox'),
+                    DropDownValueModel(name: 'Single Bouquet', value: 'Single Bouquet'),
                   ],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -193,14 +118,15 @@ class _tambahProdukState extends State<tambahProduk> {
                 ),
                 SizedBox(height: 20),
 
-                // Tombol Simpan
                 Center(
                   child: ElevatedButton(
-                    onPressed: _tambahProduk,
-                    child: Text(
-                      'Simpan',
-                      style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
+                    onPressed: isLoading ? null : _tambahProduk,
+                    child: isLoading
+                        ? CircularProgressIndicator(color: Colors.white)
+                        : Text(
+                            'Simpan',
+                            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 248, 215, 255),
                       padding: EdgeInsets.symmetric(horizontal: 50, vertical: 12),
@@ -215,6 +141,38 @@ class _tambahProdukState extends State<tambahProduk> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField(String label, String hint, TextEditingController controller, IconData icon, {bool isNumber = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 53, 31, 39)),
+        ),
+        SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+          inputFormatters: isNumber ? [FilteringTextInputFormatter.digitsOnly] : [],
+          decoration: InputDecoration(
+            labelText: hint,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            filled: true,
+            fillColor: Colors.grey[200],
+            prefixIcon: Icon(icon, color: Colors.purple),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return '$label tidak boleh kosong';
+            }
+            return null;
+          },
+        ),
+        SizedBox(height: 16),
+      ],
     );
   }
 }

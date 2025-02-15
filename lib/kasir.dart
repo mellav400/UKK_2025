@@ -26,12 +26,13 @@ class _adminState extends State<Admin> {
   }
 
   Future<void> fetchFlorist() async {
-    // final response = await Supabase.instance.client.from('produk').select();
+    final response = await Supabase.instance.client.from('produk').select();
     setState(() {
-      // florist = List<Map<String, dynamic>>.from(response);
+      florist = List<Map<String, dynamic>>.from(response);
       filteredFlorist = florist;
     });
-  }
+
+     }
 
   void filterflorist(String category){
     setState(() {
@@ -254,7 +255,7 @@ class _adminState extends State<Admin> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(list['NamaProduk'] ?? 'No name',
+                              Text(list['namaproduk'] ?? 'No name',
                                 style: GoogleFonts.poppins(
                                   color: Color(0xFF181D27),
                                   fontWeight: FontWeight.w600
@@ -270,14 +271,14 @@ class _adminState extends State<Admin> {
                                       borderRadius: BorderRadius.circular(8)
                                     ),
                                     child: Center(
-                                      child: Text('${list['Stok']} Portions',
+                                      child: Text('${list['stok']} product',
                                         style: GoogleFonts.poppins(
                                           color: Color(0xFF2E90FA)
                                         ),
                                       ),
                                     )
                                   ),
-                                  Text('Rp${list['Harga']} / Portions',
+                                  Text('Rp${list['harga']} ',
                                     style: GoogleFonts.poppins(
                                       color: Color(0xFFA4A7AE)
                                     ),
@@ -293,30 +294,30 @@ class _adminState extends State<Admin> {
                               Text(''),
                             ],
                           ),
-                          Column(
-                            children: [
-                              PopupMenuButton<String>(
-                                icon: Icon(
-                                  Icons.more_vert
-                                ),
-                                itemBuilder: (context) => [
-                                  PopupMenuItem(
-                                    // onTap: (){
-                                    //   Navigator.push(context, MaterialPageRoute(
-                                    //     builder: (context) => Editproduk(data: list,)));
-                                    // },
-                                    child: Text('Edit')
-                                  ),
-                                  PopupMenuItem(
-                                    // onTap: (){
-                                    //   showDeleteDialog(context, list['ProdukID']);
-                                    // },
-                                    child: Text('Hapus')
-                                  )
-                                ]
-                              )
-                            ],
-                          )
+                          // Column(
+                          //   children: [
+                          //     PopupMenuButton<String>(
+                          //       icon: Icon(
+                          //         Icons.more_vert
+                          //       ),
+                          //       itemBuilder: (context) => [
+                          //         PopupMenuItem(
+                          //           // onTap: (){
+                          //           //   Navigator.push(context, MaterialPageRoute(
+                          //           //     builder: (context) => Editproduk(data: list,)));
+                          //           // },
+                          //           child: Text('Edit')
+                          //         ),
+                          //         PopupMenuItem(
+                          //           // onTap: (){
+                          //           //   showDeleteDialog(context, list['ProdukID']);
+                          //           // },
+                          //           child: Text('Hapus')
+                          //         )
+                          //       ]
+                          //     )
+                          //   ],
+                          // )
                         ],
                       ),
                     ),
