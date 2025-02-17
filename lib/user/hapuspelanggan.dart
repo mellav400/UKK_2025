@@ -2,34 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class HapusProduk extends StatefulWidget {
+class HapusPelanggan extends StatefulWidget {
   final Map data;
-  const HapusProduk({super.key, required this.data});
+  const HapusPelanggan({super.key, required this.data});
 
   @override
-  _HapusProdukState createState() => _HapusProdukState();
+  _HapusPelangganState createState() => _HapusPelangganState();
 }
 
-class _HapusProdukState extends State<HapusProduk> {
+class _HapusPelangganState extends State<HapusPelanggan> {
   bool _isLoading = false;
 
-  Future<void> _hapusProduct() async {
+  Future<void> _hapusPelanggan() async {
     setState(() => _isLoading = true);
 
     try {
       await Supabase.instance.client
-          .from('produk')
+          .from('pelanggan')
           .delete()
-          .eq('produkid', widget.data['produkid']);
+          .eq('pelangganid', widget.data['pelangganid']);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Produk berhasil dihapus!')),
+        const SnackBar(content: Text('Pelanggan berhasil dihapus!')),
       );
 
       Navigator.pop(context, 'success');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal menghapus produk: $e')),
+        SnackBar(content: Text('Gagal menghapus pelanggan: $e')),
       );
     }
 
@@ -42,7 +42,7 @@ class _HapusProdukState extends State<HapusProduk> {
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 255, 82, 82),
         title: Text(
-          'Hapus Produk',
+          'Hapus Pelanggan',
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
       ),
@@ -53,7 +53,7 @@ class _HapusProdukState extends State<HapusProduk> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Apakah Anda yakin ingin menghapus produk berikut?',
+              'Apakah Anda yakin ingin menghapus pelanggan berikut?',
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                 fontSize: 18,
@@ -63,7 +63,7 @@ class _HapusProdukState extends State<HapusProduk> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Nama Produk: ${widget.data['namaproduk']}',
+              'Nama Pelanggan: ${widget.data['namapelanggan']}',
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 color: const Color.fromARGB(255, 53, 31, 39),
@@ -92,7 +92,7 @@ class _HapusProdukState extends State<HapusProduk> {
                 ),
                 const SizedBox(width: 16),
                 ElevatedButton(
-                  onPressed: _isLoading ? null : _hapusProduct,
+                  onPressed: _isLoading ? null : _hapusPelanggan,
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
                       : Text(

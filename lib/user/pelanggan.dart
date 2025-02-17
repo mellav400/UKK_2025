@@ -6,6 +6,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ukk_kasir/barang/tambahbarang.dart';
 import 'package:ukk_kasir/kasir.dart';
 import 'package:ukk_kasir/barang/addbarang.dart';
+import 'package:ukk_kasir/penjualan/penjualan.dart';
+import 'package:ukk_kasir/user/editpelanggan.dart';
+import 'package:ukk_kasir/user/hapuspelanggan.dart';
 import 'package:ukk_kasir/user/tambahpelanggan.dart';
 
 class Customer extends StatefulWidget {
@@ -135,9 +138,33 @@ class _customerState extends State<Customer> {
                   ),
                 ),
                 ListTile(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context)=> Sales()) 
+                      );
+                  },
                   title: Text(
-                    'Stok Barang',
+                    'Sales',
+                    style: GoogleFonts.poppins(
+                        color: Color(0xFF181D27),
+                        fontSize: MediaQuery.of(context).size.height * 0.02),
+                  ),
+                  leading: Image.asset(
+                    'assets/brand.png',
+                    width: MediaQuery.of(context).size.width * 0.085,
+                    height: MediaQuery.of(context).size.height * 0.085,
+                  ),
+                ),
+                 ListTile(
+                  onTap: () {
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(builder: (context)=> Sales()) 
+                    //   );
+                  },
+                  title: Text(
+                    'Receipt',
                     style: GoogleFonts.poppins(
                         color: Color(0xFF181D27),
                         fontSize: MediaQuery.of(context).size.height * 0.02),
@@ -271,18 +298,18 @@ class _customerState extends State<Customer> {
                                       borderRadius: BorderRadius.circular(8)
                                     ),
                                     child: Center(
-                                      child: Text('${list['alamat']} Portions',
+                                      child: Text('${list['alamat']} ',
                                         style: GoogleFonts.poppins(
                                           color: Color(0xFF2E90FA)
                                         ),
                                       ),
                                     )
                                   ),
-                                  Text('Rp${list['Harga']} / Portions',
-                                    style: GoogleFonts.poppins(
-                                      color: Color(0xFFA4A7AE)
-                                    ),
-                                  )
+                                  // Text('Rp${list['Harga']} / Portions',
+                                  //   style: GoogleFonts.poppins(
+                                  //     color: Color(0xFFA4A7AE)
+                                  //   ),
+                                  // )
                                 ],
                               ),
                             ] 
@@ -302,13 +329,17 @@ class _customerState extends State<Customer> {
                                 ),
                                 itemBuilder: (context) => [
                                   PopupMenuItem(
-                                    // onTap: (){
-                                    //   Navigator.push(context, MaterialPageRoute(
-                                    //     builder: (context) => Editproduk(data: list,)));
-                                    // },
+                                    onTap: (){
+                                      Navigator.push(context, MaterialPageRoute(
+                                        builder: (context) => EditCustomer(data: list,)));
+                                    },
                                     child: Text('Edit')
                                   ),
                                   PopupMenuItem(
+                                     onTap: (){
+                                      Navigator.push(context, MaterialPageRoute(
+                                        builder: (context) => HapusPelanggan(data: list,)));
+                                    },
                                     // onTap: (){
                                     //   showDeleteDialog(context, list['ProdukID']);
                                     // },

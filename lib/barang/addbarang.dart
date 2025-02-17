@@ -4,8 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase/supabase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ukk_kasir/barang/editbarang.dart';
+import 'package:ukk_kasir/barang/hapusbarang.dart';
 import 'package:ukk_kasir/barang/tambahbarang.dart';
 import 'package:ukk_kasir/kasir.dart';
+import 'package:ukk_kasir/user/pelanggan.dart';
 
 
 class Barang extends StatefulWidget {
@@ -122,7 +124,12 @@ class _adminState extends State<Barang> {
                   ),
                 ),
                  ListTile(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context, 
+                      MaterialPageRoute(builder: (context)=> Customer()),
+                      );
+                  },
                   title: Text(
                     'Data Customer',
                     style: GoogleFonts.poppins(
@@ -325,9 +332,10 @@ class _adminState extends State<Barang> {
                                     child: Text('Edit')
                                   ),
                                   PopupMenuItem(
-                                    // onTap: (){
-                                    //   showDeleteDialog(context, list['ProdukID']);
-                                    // },
+                                    onTap: (){
+                                      Navigator.push(context, MaterialPageRoute(
+                                        builder: (context) => HapusProduk(data: list,)));
+                                    },
                                     child: Text('Hapus')
                                   )
                                 ]

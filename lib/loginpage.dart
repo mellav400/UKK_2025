@@ -35,7 +35,7 @@ class _Loginpagestate extends State<Loginpage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-  backgroundColor: const Color.fromARGB(255, 255, 237, 248),
+  backgroundColor: const Color.fromARGB(255, 253, 244, 255),
       body: Expanded(
         child: Padding(
           padding: const EdgeInsets.only(top: 10, left: 24, right: 24),
@@ -72,7 +72,7 @@ class _Loginpagestate extends State<Loginpage> {
                 ),
                 Text('Your sales data is just a login away',
                   style: GoogleFonts.poppins(
-                    color: Color.fromARGB(255, 106, 108, 110),
+                    color: Color.fromARGB(255, 66, 66, 67),
                     fontSize: MediaQuery.of(context).size.height * 0.018,
                   ),
                 ),
@@ -92,7 +92,7 @@ class _Loginpagestate extends State<Loginpage> {
                         decoration: InputDecoration(
                           labelText: 'Type your username',
                           labelStyle: GoogleFonts.poppins(
-                            color: Color(0xFFA4A7AE),
+                            color: Color.fromARGB(255, 131, 131, 131),
                             fontSize: MediaQuery.of(context).size.height * 0.015
                           ),
                           enabledBorder: OutlineInputBorder(
@@ -115,14 +115,14 @@ class _Loginpagestate extends State<Loginpage> {
                         decoration: InputDecoration(
                           labelText: 'Type your password',
                           labelStyle: GoogleFonts.poppins(
-                          color: Color(0xFFA4A7AE),
+                          color:  Color.fromARGB(255, 131, 131, 131),
                             fontSize: MediaQuery.of(context).size.height * 0.015,
                           ),
                           suffixIcon: Icon(Icons.visibility_off, color: Colors.grey.withOpacity(0.2),),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide(
-                              color: Colors.grey.withOpacity(0.2)
+                              color: const Color.fromARGB(255, 79, 77, 77).withOpacity(0.2)
                             )
                           )
                         ),
@@ -131,17 +131,17 @@ class _Loginpagestate extends State<Loginpage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container(
-                            child: Row(
-                              children: [
-                                Checkbox(value: false, onChanged: (value) {},),
-                                Text('Remember Me', 
-                                style: GoogleFonts.poppins(
-                                  color: Color(0xFFA4A7AE),
-                                ),),
-                              ],
-                            )
-                          ),
+                          // Container(
+                          //   child: Row(
+                          //     children: [
+                          //       Checkbox(value: false, onChanged: (value) {},),
+                          //       Text('Remember Me', 
+                          //       style: GoogleFonts.poppins(
+                          //         color: Color(0xFFA4A7AE),
+                          //       ),),
+                          //     ],
+                          //   )
+                          // ),
                         ],
                       ),
                       SizedBox(height: MediaQuery.of(context).size.height * 0.06,),

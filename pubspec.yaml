@@ -39,6 +39,10 @@ dependencies:
   dropdown_textfield: ^1.2.0
   supabase_flutter: ^2.8.3
   date_format: ^2.0.9
+  pdf: ^3.11.3
+  path_provider: ^2.1.5
+  permission_handler: ^11.3.1
+  html: ^0.15.0
 
 dev_dependencies:
   flutter_test:

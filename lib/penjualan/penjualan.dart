@@ -32,7 +32,7 @@ class _SalesState extends State<Sales> {
     try {
       final response = await Supabase.instance.client.from('penjualan').select('''
         penjualanid, created_at, totalharga,
-        pelanggan(pelangganid, namapelanggan, alamat),
+        pelanggan(pelangganid, namapelanggan, notelp, alamat),
         detailpenjualan(detailid, jumlahproduk, subtotal,
           produk(produkid, namaproduk, harga)
         )
@@ -143,6 +143,10 @@ class _SalesState extends State<Sales> {
                                       style: GoogleFonts.poppins(fontSize: 14),
                                     ),
                                     Text(
+                                      'No Telp: ${customer['notelp'] ?? 'No Phone'}',
+                                      style: GoogleFonts.poppins(fontSize: 14),
+                                    ),
+                                    Text(
                                       'Tanggal: ${sale['created_at'] ?? 'Unknown'}',
                                       style: GoogleFonts.poppins(fontSize: 14),
                                     ),
@@ -152,7 +156,7 @@ class _SalesState extends State<Sales> {
                                     ),
                                     Divider(),
                                     Text(
-                                      'Produk Dibeli:',
+                                      'Produk Dibeli: ',
                                       style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.bold),
                                     ),
                                     if (details.isEmpty)
@@ -203,7 +207,7 @@ class _SalesState extends State<Sales> {
             context,
             MaterialPageRoute(builder: (context) => TambahPenjualan()),
           ).then((_) {
-            fetchSalesData(); // Refresh data setelah tambah penjualan
+            fetchSalesData(); 
           });
         },
         child: Icon(Icons.add),

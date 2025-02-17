@@ -1,0 +1,21 @@
+// TextextField(
+//               onChanged: (value) {
+//                 setState(() {
+//                   jumlahProduk = int.tryParse(value) ?? 1;
+//                   if (jumlahProduk > stokTersedia) {
+//                     jumlahProduk = stokTersedia;
+//                   }
+//                   subtotal = produkList.firstWhere((p) => p['produkid'] == selectedProduk)['harga'] * jumlahProduk;
+//                 });
+//               },
+//               keyboardType: TextInputType.number,
+//               decoration: InputDecoration(
+//                 labelText: 'Jumlah Produk',
+//                 hintText: 'Masukkan jumlah produk',
+//                 border: OutlineInputBorder(),
+//               ),
+//             ),
+// Text(
+//     'Subtotal: Rp${subtotal.toStringAsFixed(0)}',
+//     style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
+//   ),
