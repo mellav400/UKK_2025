@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ukk_kasir/kasir.dart';
 import 'package:ukk_kasir/pelanggan/kasir.dart';
-import 'package:ukk_kasir/petugas/kasir.dart';
 import 'package:ukk_kasir/user/pelanggan.dart';
 import 'kasir.dart';
 import 'package:ukk_kasir/loginpage.dart';

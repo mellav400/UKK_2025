@@ -5,14 +5,14 @@ import 'package:ukk_kasir/penjualan/penjualan.dart';
 import 'supabase.dart';
 import 'package:ukk_kasir/barang/addbarang.dart';
 
-class Admin extends StatefulWidget {
-  const Admin({super.key});
+class Petugas extends StatefulWidget {
+  const Petugas({super.key});
 
   @override
-  _AdminState createState() => _AdminState();
+  _PetugasState createState() => _PetugasState();
 }
 
-class _AdminState extends State<Admin> {
+class _PetugasState extends State<Petugas> {
   List<Map<String, dynamic>> florist = [];
   List<Map<String, dynamic>> filteredFlorist = [];
   String category = 'all';
