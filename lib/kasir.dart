@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:ukk_kasir/loginpage.dart';
+import 'package:ukk_kasir/logoutpage.dart';
 import 'package:ukk_kasir/penjualan/penjualan.dart';
 import 'supabase.dart';
 import 'package:ukk_kasir/barang/addbarang.dart';
-
+import 'package:intl/intl.dart';
 class Admin extends StatefulWidget {
   const Admin({super.key});
 
@@ -136,21 +138,28 @@ class _AdminState extends State<Admin> {
     color: Color(0xFF181D27), 
   ),
 ),
-
-                ListTile(
-                  onTap: () {},
-                  title: Text(
-                    'Stock Product',
-                    style: GoogleFonts.poppins(
-                        color: Color(0xFF181D27),
-                        fontSize: MediaQuery.of(context).size.height * 0.02),
-                  ),
-                  leading: Icon(
-    Icons.app_registration_rounded,
+ListTile(
+  onTap: () {
+   
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => Loginpage()), 
+      (route) => false,
+    );
+  },
+  title: Text(
+    'Logout',
+    style: GoogleFonts.poppins(
+      color: Color(0xFF181D27),
+      fontSize: MediaQuery.of(context).size.height * 0.02,
+    ),
+  ),
+  leading: Icon(
+    Icons.logout,
     size: 25, 
     color: Color(0xFF181D27), 
   ),
-                ),
+),
+
                 ListTile(
                   onTap: (){
                     Navigator.push(
@@ -253,7 +262,7 @@ class _AdminState extends State<Admin> {
                                             color: Color(0xFF2E90FA))),
                                   ),
                                   SizedBox(width: 10),
-                                  Text('Rp${item['harga']}',
+                                  Text('Rp.${NumberFormat("#,###", "id_ID").format(item['harga'])}',
                                       style: GoogleFonts.poppins(
                                           color: Color(0xFFA4A7AE))),
                                 ],

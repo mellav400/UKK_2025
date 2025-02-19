@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -55,27 +56,37 @@ class _DetailPenjualanState extends State<DetailPenjualan> {
       setState(() => isLoading = false);
     }
   }
+Future<void> generateAndDownloadReceipt() async {
+  final pdf = pw.Document();
+  final dateFormatter = DateFormat('dd/MM/yyyy HH:mm').format(DateTime.now());
 
-  Future<void> generateAndDownloadReceipt() async {
-    final pdf = pw.Document();
-    final dateFormatter = DateTime.now();
+  final imageBytes = await rootBundle.load('assets/logo.png');
+  final image = pw.MemoryImage(imageBytes.buffer.asUint8List());
 
-    final imageBytes = await rootBundle.load('assets/logo.png');
-    final image = pw.MemoryImage(imageBytes.buffer.asUint8List());
+  
+  final pageTheme = pw.PageTheme(
+    pageFormat: PdfPageFormat(80 * PdfPageFormat.mm, double.infinity, marginAll: 5),
+  );
 
-    pdf.addPage(pw.Page(
+  pdf.addPage(
+    pw.Page(
+      pageTheme: pageTheme,
       build: (pw.Context context) {
         return pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          crossAxisAlignment: pw.CrossAxisAlignment.center,
           children: [
-            pw.Image(image, width: 100, height: 100 ),
-            pw.Text('National Road III, No', style: pw.TextStyle(fontSize: 12)),
-            pw.Text('Sales Receipt', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
-            pw.Text('Date: ${dateFormatter.toString()}', style: pw.TextStyle(fontSize: 12)),
-            pw.Text('Customer: ${transaksi?['pelanggan']?['namapelanggan'] ?? 'Tidak diketahui'}', style: pw.TextStyle(fontSize: 12)),
+            pw.Image(image, width: 60, height: 60),
+            pw.Text('Lula Flawrist', style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold)),
+            pw.Text('National Road III No. 40, Blitar', style: pw.TextStyle(fontSize: 10)),
+            pw.SizedBox(height: 5),
+            pw.Text('Shopping Receipt', style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold)),
+            pw.Text('Date: $dateFormatter', style: pw.TextStyle(fontSize: 10)),
+            pw.Text('Customer: ${transaksi?['pelanggan']?['namapelanggan'] ?? 'Umum'}', style: pw.TextStyle(fontSize: 10)),
+            pw.Divider(),
+            pw.Text('Purchase details:', style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold)),
+            pw.SizedBox(height: 5),
             
-            pw.SizedBox(height: 12),
-            pw.Text('Product purchased:', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+            
             pw.ListView.builder(
               itemCount: detailPenjualan.length,
               itemBuilder: (pw.Context context, int index) {
@@ -85,48 +96,64 @@ class _DetailPenjualanState extends State<DetailPenjualan> {
                 int harga = (produk['harga'] ?? 0) as int;
                 int subtotal = jumlah * harga;
 
-                return pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                return pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text('${produk['namaproduk'] ?? 'Tidak ada nama'}', style: pw.TextStyle(fontSize: 12)),
-                    pw.Text('$jumlah x Rp$harga = Rp$subtotal', style: pw.TextStyle(fontSize: 12)),
+                    pw.Text('${produk['namaproduk'] ?? 'Tidak ada nama'}', style: pw.TextStyle(fontSize: 10)),
+                    pw.Row(
+                      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                      children: [
+                        pw.Text('$jumlah x Rp${NumberFormat("#,###", "id_ID").format(harga)}',
+                            style: pw.TextStyle(fontSize: 10)),
+                        pw.Text('Rp${NumberFormat("#,###", "id_ID").format(subtotal)}',
+                            style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold)),
+                      ],
+                    ),
+                    pw.SizedBox(height: 3),
                   ],
                 );
               },
             ),
-            pw.SizedBox(height: 12),
-            pw.Text('Payment: Rp${transaksi?['totalharga'] ?? 0}', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+            
+            pw.Divider(),
+            pw.Text('Total Bayar: Rp${NumberFormat("#,###", "id_ID").format(transaksi?['totalharga'] ?? 0)}',
+                style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold)),
+            pw.SizedBox(height: 5),
+            pw.Text('Thanks for coming, see you soon!', style: pw.TextStyle(fontSize: 10, fontStyle: pw.FontStyle.italic)),
+              pw.Text('©Lulaflawrist2025', style: pw.TextStyle(fontSize: 7,)),
+            pw.SizedBox(height: 10),
           ],
         );
       },
-    ));
+    ),
+  );
 
-    if (kIsWeb) {
-    
-      final bytes = await pdf.save();
-      final buffer = html.Blob([bytes]);
-      final url = html.Url.createObjectUrlFromBlob(buffer);
-      final anchor = html.AnchorElement(href: url)
-        ..target = 'blank'
-        ..download = 'struk_penjualan_${widget.penjualanId}.pdf';
-      anchor.click();
-      html.Url.revokeObjectUrl(url);
+  if (kIsWeb) {
+    final bytes = await pdf.save();
+    final buffer = html.Blob([bytes]);
+    final url = html.Url.createObjectUrlFromBlob(buffer);
+    final anchor = html.AnchorElement(href: url)
+      ..target = 'blank'
+      ..download = 'struk_penjualan_${widget.penjualanId}.pdf';
+    anchor.click();
+    html.Url.revokeObjectUrl(url);
+  } else {
+    if (await Permission.storage.request().isGranted) {
+      final output = await getExternalStorageDirectory();
+      final file = File('${output!.path}/struk_penjualan_${widget.penjualanId}.pdf');
+      await file.writeAsBytes(await pdf.save());
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Struk berhasil diunduh!')),
+      );
     } else {
-      if (await Permission.storage.request().isGranted) {
-        final output = await getExternalStorageDirectory(); 
-        final file = File('${output!.path}/struk_penjualan_${widget.penjualanId}.pdf');
-        await file.writeAsBytes(await pdf.save());
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Struk berhasil diunduh!')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Permission denied!')),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Permission denied!')),
+      );
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -180,8 +207,8 @@ class _DetailPenjualanState extends State<DetailPenjualan> {
                           child: ListTile(
                             title: Text(produk['namaproduk'] ?? 'Tidak ada nama', style: GoogleFonts.poppins(fontSize: 14)),
                             subtitle: Text(
-                              '$jumlah x Rp$harga = Rp$subtotal',
-                              style: GoogleFonts.poppins(fontSize: 12),
+                              '$jumlah x Rp${NumberFormat("#,###","id_ID").format(harga)} = Rp${NumberFormat("#,###","id_ID").format(subtotal)}',
+                              style: GoogleFonts.poppins(fontSize: 13),
                             ),
                           ),
                         );
@@ -190,7 +217,7 @@ class _DetailPenjualanState extends State<DetailPenjualan> {
                   ),
                   Divider(),
                   Text(
-                    'Total Pembayaran: Rp${transaksi?['totalharga'] ?? 0}',
+                    'Total Pembayaran: Rp${NumberFormat("#,###","id_ID").format( transaksi?['totalharga']) ?? 0}',
                     style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 16),

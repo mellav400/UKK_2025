@@ -11,6 +11,7 @@ class TambahPenjualan extends StatefulWidget {
 
 class _TambahPenjualanState extends State<TambahPenjualan> {
   final SupabaseClient supabase = Supabase.instance.client;
+  // final List<Map<String
   List<Map<String, dynamic>> produkList = [];
   List<Map<String, dynamic>> pelangganList = [];
   int selectedProduk = 0;

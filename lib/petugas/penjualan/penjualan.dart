@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:ukk_kasir/penjualan/detailpenjualan.dart';
-import 'package:ukk_kasir/penjualan/tambahpenjualan.dart';
 import 'package:intl/intl.dart';
 
 class Sales extends StatefulWidget {
@@ -14,9 +12,9 @@ class Sales extends StatefulWidget {
 
 class _SalesState extends State<Sales> {
   List<Map<String, dynamic>> salesData = [];
-  List<Map<String, dynamic>> filteredSalesData = [];
   bool isLoading = true;
   String errorMessage = '';
+  final SupabaseClient supabase = Supabase.instance.client;
 
   @override
   void initState() {
@@ -31,30 +29,38 @@ class _SalesState extends State<Sales> {
     });
 
     try {
-      final response = await Supabase.instance.client.from('penjualan').select('''
+      final user = supabase.auth.currentUser;
+      if (user == null) {
+        setState(() {
+          errorMessage = 'User tidak ditemukan';
+          isLoading = false;
+        });
+        return;
+      }
+
+      final response = await supabase
+          .from('penjualan')
+          .select('''
         penjualanid, created_at, totalharga,
-        pelanggan(pelangganid, namapelanggan, notelp, alamat),
         detailpenjualan(detailid, jumlahproduk, subtotal,
           produk(produkid, namaproduk, harga)
         )
-      ''').order('created_at', ascending: false);
-
-      print("Response dari Supabase: $response"); // Debugging Output
+      ''')
+          .eq('pelangganid', user.id)
+          .order('created_at', ascending: false);
 
       if (response != null && response.isNotEmpty) {
         setState(() {
           salesData = List<Map<String, dynamic>>.from(response);
-          filteredSalesData = salesData;
           isLoading = false;
         });
       } else {
         setState(() {
-          errorMessage = 'Tidak ada data penjualan.';
+          errorMessage = 'Tidak ada riwayat transaksi.';
           isLoading = false;
         });
       }
     } catch (e) {
-      print("Error fetching data: $e"); // Debugging Error
       setState(() {
         errorMessage = 'Terjadi kesalahan saat mengambil data.';
         isLoading = false;
@@ -62,13 +68,11 @@ class _SalesState extends State<Sales> {
     }
   }
 
-  void filterSales(String query) {
-    setState(() {
-      filteredSalesData = salesData.where((sale) {
-        final customerName = (sale['pelanggan']?['namapelanggan'] ?? '').toLowerCase();
-        return customerName.contains(query.toLowerCase());
-      }).toList();
-    });
+  void downloadStruk(Map<String, dynamic> sale) {
+    // Di sini, implementasikan fungsi untuk menggenerate PDF struk
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Struk berhasil diunduh!')),
+    );
   }
 
   @override
@@ -78,7 +82,7 @@ class _SalesState extends State<Sales> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text(
-          'Sales Transactions',
+          'Riwayat Pesanan',
           style: GoogleFonts.poppins(
             color: Color(0xFF181D27),
             fontSize: 20,
@@ -90,15 +94,6 @@ class _SalesState extends State<Sales> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Search by Customer',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-              onChanged: filterSales,
-            ),
-            SizedBox(height: 16),
             if (errorMessage.isNotEmpty)
               Center(
                 child: Text(
@@ -110,88 +105,71 @@ class _SalesState extends State<Sales> {
               Center(child: CircularProgressIndicator())
             else
               Expanded(
-                child: filteredSalesData.isEmpty
-                    ? Center(child: Text("Tidak ada data penjualan"))
+                child: salesData.isEmpty
+                    ? Center(child: Text("Tidak ada riwayat transaksi"))
                     : ListView.builder(
-                        itemCount: filteredSalesData.length,
+                        itemCount: salesData.length,
                         itemBuilder: (context, index) {
-                          final sale = filteredSalesData[index];
-                          final customer = sale['pelanggan'] ?? {};
+                          final sale = salesData[index];
                           final details = sale['detailpenjualan'] ?? [];
 
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DetailPenjualan(
-                                    penjualanId: sale['penjualanid'],
-                                    transaksi: sale,
+                          return Card(
+                            elevation: 2,
+                            margin: EdgeInsets.symmetric(vertical: 8),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Tanggal: ${DateFormat('dd MMM yyyy').format(DateTime.parse(sale['created_at']))}',
+                                    style: GoogleFonts.poppins(fontSize: 14),
                                   ),
-                                ),
-                              );
-                            },
-                            child: Card(
-                              elevation: 2,
-                              margin: EdgeInsets.symmetric(vertical: 8),
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
+                                  Divider(),
+                                  Text(
+                                    'Produk Dibeli:',
+                                    style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.bold),
+                                  ),
+                                  if (details.isEmpty)
                                     Text(
-                                      'Pelanggan: ${customer['namapelanggan'] ?? 'No Name'}',
-                                      style: GoogleFonts.poppins(fontSize: 14),
+                                      'Tidak ada produk dalam pesanan ini',
+                                      style: GoogleFonts.poppins(fontSize: 12, color: Colors.red),
+                                    )
+                                  else
+                                    ...details.map<Widget>((item) {
+                                      final product = item['produk'] ?? {};
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 2.0),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              '${product['namaproduk'] ?? 'Unknown Product'}',
+                                              style: GoogleFonts.poppins(fontSize: 14),
+                                            ),
+                                            Text(
+                                              'Qty: ${item['jumlahproduk'] ?? 0} - Rp${product['harga'] ?? 0}',
+                                              style: GoogleFonts.poppins(fontSize: 12),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
+                                  Divider(),
+                                  Text(
+                                    'Total Pembayaran: Rp.${NumberFormat('#,###').format(sale['totalharga'] ?? 0)}',
+                                    style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
+                                  ),
+                                  SizedBox(height: 10),
+                                  ElevatedButton.icon(
+                                    onPressed: () => downloadStruk(sale),
+                                    icon: Icon(Icons.download),
+                                    label: Text('Unduh Struk'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.pink,
                                     ),
-                                    Text(
-                                      'No Telp: ${customer['notelp'] ?? 'No Phone'}',
-                                      style: GoogleFonts.poppins(fontSize: 14),
-                                    ),
-                                    Text(
-                                      'Tanggal: ${sale['created_at'] ?? 'Unknown'}',
-                                      style: GoogleFonts.poppins(fontSize: 14),
-                                    ),
-                                    Text(
-                                      'Alamat: ${customer['alamat'] ?? 'No Address'}',
-                                      style: GoogleFonts.poppins(fontSize: 14),
-                                    ),
-                                    Divider(),
-                                    Text(
-                                      'Produk Dibeli: ',
-                                      style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.bold),
-                                    ),
-                                    if (details.isEmpty)
-                                      Text(
-                                        'Tidak ada produk yang dibeli',
-                                        style: GoogleFonts.poppins(fontSize: 12, color: Colors.red),
-                                      )
-                                    else
-                                      ...details.map<Widget>((item) {
-                                        final product = item['produk'] ?? {};
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 2.0),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                '${product['namaproduk'] ?? 'Unknown Product'}',
-                                                style: GoogleFonts.poppins(fontSize: 14),
-                                              ),
-                                              Text(
-                                                'Qty: ${item['jumlahproduk'] ?? 0} - Rp${product['harga'] ?? 0}',
-                                                style: GoogleFonts.poppins(fontSize: 12),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      }).toList(),
-                                    Divider(),
-                                    Text(
-                                      'Total Pembayaran: Rp.${NumberFormat('#,###').format(sale['totalharga'] ?? 0)}',
-                                      style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
                           );
@@ -200,18 +178,6 @@ class _SalesState extends State<Sales> {
               ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.pink,
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => TambahPenjualan()),
-          ).then((_) {
-            fetchSalesData(); 
-          });
-        },
-        child: Icon(Icons.add),
       ),
     );
   }
